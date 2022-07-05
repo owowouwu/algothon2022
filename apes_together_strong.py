@@ -1,3 +1,7 @@
+"""
+main submission file
+"""
+
 import numpy as np
 
 nInst=100
