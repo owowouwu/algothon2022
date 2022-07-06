@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import time
-from apes_together_strong import getMyPosition as getPosition
+from mean_reversion import getMyPosition as getPosition
 
 nInst = 0
 nt = 0
@@ -24,7 +24,8 @@ pricesFile="./prices.txt"
 prcAll = loadPrices(pricesFile)
 print ("Loaded %d instruments for %d days" % (nInst, nt))
 
-#currentPos = np.zeros(nInst)
+currentPos = np.zeros(nInst)
+print(prcAll)
 
 def calcPL(prcHist):
     global tStart
