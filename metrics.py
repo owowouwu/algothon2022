@@ -10,9 +10,10 @@ import seaborn as sns
 def calculate_ema(arr, window, alpha):
     ema = [sum(arr[:window]) / window]
     for x in arr[window:]:
-        ema.append(x * alpha / (1 + window) + ema[-1] * (1 - alpha / (1 + window)))
+        #ema.append(x * alpha / (1 + window) + ema[-1] * (1 - alpha / (1 + window)))
+        ema.append(ema[-1] + alpha * (x - ema[-1]))
     return ema
-    
+
 
 def calcBollinger(prices, window, nstds):
     """
@@ -41,6 +42,7 @@ def calcRSI(prices, window):
     smmaU = calculate_ema(U, window, 1 / window)
     smmaD = calculate_ema(D, window, 1 / window)
     RS = np.array(smmaU) / np.array(smmaD)
-    return RS
+    RSI = 100 - 100 / (1 + RS)
+    return RSI
 
 

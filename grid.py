@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 import time
-from mean_reversion import getMyPosition as getPosition
+import sys
+from mean_reversion import getMyPosition2
 
 
 nInst = 0
@@ -13,8 +14,10 @@ commRate = 0.0025 # was 0.0050
 # Dollar position limit (maximum absolute dollar value of any individual stock position)
 dlrPosLimit = 10000
 
-timeOut=600
+timeOut=600 
 
+c = float(sys.argv[1])
+getPosition = lambda x: getMyPosition2(x, 50, c)
 
 def loadPrices(fn):
     global nt, nInst
@@ -24,10 +27,11 @@ def loadPrices(fn):
 
 pricesFile="./prices.txt"
 prcAll = loadPrices(pricesFile)
-print ("Loaded %d instruments for %d days" % (nInst, nt))
+#print ("Loaded %d instruments for %d days" % (nInst, nt))
 
 currentPos = np.zeros(nInst)
-print(prcAll)
+#print(prcAll)
+
 
 def calcPL(prcHist):
     global tStart
@@ -38,7 +42,6 @@ def calcPL(prcHist):
     frac1 = 0.
     value = 0
     todayPLL = []
-    allPositions = []
     (_,nt) = prcHist.shape
     tNow = time.time()
     for t in range(1,nt+1): 
@@ -50,7 +53,6 @@ def calcPL(prcHist):
         #print ("tRunning: %.4lf" % tRunning)
         if (t < nt) and (tRunning <= timeOut):
             newPosOrig = getPosition(prcHistSoFar)
-            allPositions.append(newPosOrig.copy())
             # otherwise keep the same desired positions
         if (tRunning > timeOut):
             print ("TIME OUT [ %.3lf > %lf]!" % (tRunning, timeOut))
@@ -71,14 +73,13 @@ def calcPL(prcHist):
         ret = 0.0
         if (totDVolume > 0):
             ret = value / totDVolume
-        print ("Day %d value: %.2lf todayPL: $%.2lf $-traded: %.0lf return: %.5lf" % (t,value, todayPL, totDVolume, ret))
+        #print ("Day %d value: %.2lf todayPL: $%.2lf $-traded: %.0lf return: %.5lf" % (t,value, todayPL, totDVolume, ret))
     pll = np.array(todayPLL)
     np.save('./results/pl.npy', pll)
     (plmu,plstd) = (np.mean(pll), np.std(pll))
     annSharpe = 0.0
     if (plstd > 0):
         annSharpe = 16 * plmu / plstd
-    np.save('./results/positions.npy', allPositions)
     return (plmu, ret, annSharpe, totDVolume)
 
 
@@ -88,11 +89,14 @@ tStart = time.time()
 tEnd = time.time()
 tRun = tEnd - tStart
 print ("=====")
+print("constant:", c)
 print ("mean(PL): %.0lf" % meanpl)
 print ("return: %.5lf" % ret)
-print ("annSharpe(PL): %.2lf " % sharpe)
-print ("totDvolume: %.0lf " % dvol)
-print ("runTime  : %.3lf " % tRun)
+#print ("annSharpe(PL): %.2lf " % sharpe)
+#print ("totDvolume: %.0lf " % dvol)
+#print ("runTime  : %.3lf " % tRun)
+
+
 
 
 
